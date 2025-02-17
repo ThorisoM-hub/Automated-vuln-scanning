@@ -12,7 +12,7 @@ To develop an automated system for vulnerability scanning and report generation.
 
 ## Step 1: Install OpenVAS or Nessus
 
-### Installing OpenVAS (comment out this section if you use Nessus instead)
+### Installing OpenVAS or Nessus
 ```bash
 echo "Installing OpenVAS..."
 sudo apt update
@@ -194,7 +194,4 @@ To execute the script, use:
 ./scan_and_report.sh 192.168.1.1 MyScanReport
 ```
 
-This version of the code consolidates everything, including all the sections you requested, into one block. It contains the instructions for installing and configuring OpenVAS or Nessus, automating vulnerability scanning, generating reports, and automating remediation tasks with both Bash and Python alternatives.
-```
 
-You can copy and paste this entire block into a GitHub README.md file or a script file as needed.
