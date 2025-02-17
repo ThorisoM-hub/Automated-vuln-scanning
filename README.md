@@ -1,197 +1,237 @@
 
-# Automated Vulnerability Scanning and Reporting System
+# **Automated Vulnerability Scanning and Reporting System**
 
-## Objective:
+## **Objective:**
 To develop an automated system for vulnerability scanning and report generation. This system will use **OpenVAS** or **Nessus** to identify vulnerabilities in a system or network and automatically generate reports for further analysis and remediation.
 
-## Skills Demonstrated:
+## **Skills Demonstrated:**
 - **Automated Vulnerability Scanning**: Utilize industry-standard tools (OpenVAS or Nessus) to perform regular scans and identify vulnerabilities.
 - **Automation**: Automating vulnerability scans to reduce manual effort and ensure regular monitoring of the system.
 - **Report Generation**: Create reports in various formats (PDF, HTML, CSV) based on scan results to provide actionable insights for remediation.
 - **Remediation Concepts**: Automate basic remediation tasks like closing open ports and patching vulnerable software.
 
-## Step 1: Install OpenVAS or Nessus
+---
 
-### Installing OpenVAS or Nessus
-```bash
-echo "Installing OpenVAS..."
-sudo apt update
-sudo apt install -y openvas
-sudo openvas-setup
-# Screenshot 1: Show OpenVAS installation (e.g., screenshot link: https://example.com/screenshot1)
+### **Step 1: Install OpenVAS**
 
-# Uncomment below to install Nessus
-# echo "Installing Nessus..."
-# sudo apt update
-# sudo apt install -y wget
-# wget https://www.tenable.com/downloads/api/v1/public/pages/nessus/downloads/11890/download?i_agree_to_tenable_license_agreement=true -O nessus.deb
-# sudo dpkg -i nessus.deb
-# sudo systemctl start nessusd
-# sudo systemctl enable nessusd
-# Screenshot 2: Show Nessus installation (optional, if Nessus is used) (e.g., screenshot link: https://example.com/screenshot2)
+1. **Update package repositories and install OpenVAS:**
+   ```bash
+   sudo apt update
+   sudo apt install -y openvas
+   ```
 
-echo "OpenVAS (or Nessus) installed successfully!"
-# Screenshot 3: Successful installation confirmation (e.g., screenshot link: https://example.com/screenshot3)
-```
+2. **Perform initial setup of OpenVAS:**
+   ```bash
+   sudo openvas-setup
+   ```
 
-## Step 2: Automate Vulnerability Scanning
+3. **Check the status of OpenVAS services:**
+   ```bash
+   sudo systemctl status openvas-scanner
+   sudo systemctl status openvas-manager
+   sudo systemctl status openvas-gsa
+   ```
 
-### Create a Script for Automated Scanning:
-Use cron jobs to schedule scans automatically at specific intervals (e.g., daily, weekly).
+4. **Sync the OpenVAS NVT (Network Vulnerability Tests) feed:**
+   ```bash
+   sudo openvas-nvt-sync
+   ```
 
-```bash
-# Example Cron Job (Run every day at 2:00 AM):
-# Edit the cron job using `crontab -e` command:
-# crontab -e
-# Add the following line to automate vulnerability scanning:
-# 0 2 * * * /usr/local/bin/openvas-nvt-sync && /usr/local/bin/openvas-start
+5. **Access the OpenVAS web interface:**
+   OpenVAS can be accessed through your web browser at:  
+   `https://<your-server-ip>:9392/`
 
-# For Nessus (Alternative Method):
-# #!/bin/bash
-# /opt/nessus/sbin/nessuscli scan --name "scan_name" --target "target_ip"
+   Login with the credentials set up during installation.
 
-# Python Alternative (Not used in this project but provided for others who prefer it):
-# This Python script automates scanning with OpenVAS.
+---
 
-# TARGET_IP=$1  # Target IP for scanning
-# SCAN_NAME=$2  # Scan name for report file
-# REPORT_PATH="./reports/$SCAN_NAME.pdf"  # Directory to save reports
+### **Step 1: Alternative Install Nessus (If Preferred)**
 
-# # Function to start OpenVAS scan and generate report
-# def run_scan(target_ip, scan_name, report_path):
-#     print("Syncing NVT (Network Vulnerability Tests)...")
-#     os.system("openvas-nvt-sync")
+1. **Install Nessus:**
+   ```bash
+   sudo apt update
+   sudo apt install -y wget
+   wget https://www.tenable.com/downloads/api/v1/public/pages/nessus/downloads/11890/download?i_agree_to_tenable_license_agreement=true -O nessus.deb
+   sudo dpkg -i nessus.deb
+   sudo systemctl start nessusd
+   sudo systemctl enable nessusd
+   ```
 
-#     print("Starting OpenVAS service...")
-#     os.system("openvas-start")
+2. **Access the Nessus web interface:**
+   Nessus can be accessed through your web browser at:  
+   `https://<your-server-ip>:8834/`
 
-#     print(f"Running the scan for {target_ip} and generating the report...")
-#     scan_id = os.popen(f"openvas-cli -h | grep {target_ip} | awk '{{print $1}}'").read().strip()
-#     os.system(f"openvas-report -i {scan_id} --output-format=PDF --output-file {report_path}")
+   Login with the credentials set up during installation.
 
-#     print(f"Scan complete. Report saved to {report_path}")
+---
 
-# # Example of running the Python script:
-# # run_scan("<TARGET_IP>", "<SCAN_NAME>", "./reports/<SCAN_NAME>.pdf")
+### **Step 2: Automate Vulnerability Scanning**
 
-# Use cron or another task scheduler to run your script automatically.
-```
+1. **Edit the crontab to schedule automatic vulnerability scans:**
+   ```bash
+   crontab -e
+   ```
 
-## Step 3: Report Generation and Automation
+2. **Add the following line to automate vulnerability scanning every day at 2 AM:**
+   ```bash
+   # Synchronize the NVT feed and start OpenVAS scan at 2 AM every day
+   0 2 * * * /usr/local/bin/openvas-nvt-sync && /usr/local/bin/openvas-start
+   ```
 
-### Generate Reports Automatically:
-Use the OpenVAS CLI or Nessus CLI to generate reports after each scan.
+This cron job will ensure that the NVT feed is updated daily, and OpenVAS starts the scanning process at **2 AM** every day.
 
-```bash
-# For OpenVAS:
-# openvas-report -i <scan_id> --output-format=PDF --output-file /path/to/report.pdf
+---
 
-# For Nessus:
-# nessuscli report -i <scan_id> --output-format pdf --output-file /path/to/report.pdf
+### **Step 2: Alternative for Nessus Scanning**
 
-# Save Reports Locally:
-# The generated reports will be saved locally at a specified directory, for later review and analysis.
-# Screenshot 4: Example of report generation (e.g., screenshot link: https://example.com/screenshot4)
-```
-
-## Step 4: Remediation (Automated)
-
-### Automate Basic Remediation Tasks:
-- **Closing open ports**:
-  - If a vulnerability scan detects an open port that shouldn't be there, use scripts to block or close those ports.
-
-  **Example: Closing an Open Port (Firewall)**:
-  ```bash
-  sudo ufw deny <port_number>
-  ```
-
-- **Patching Vulnerable Software**:
-  - If a vulnerable package or software version is detected, automate the patching process. For example, you can automate system updates with a simple script:
-
-  **Example: Automate System Update**:
-  ```bash
-  sudo apt-get update && sudo apt-get upgrade -y
-  ```
-
-- **Stopping Unnecessary Services**:
-  - If unnecessary services are running, automate their shutdown or disable them.
-
-  **Example: Disable a Service**:
-  ```bash
-  sudo systemctl stop <service_name>
-  sudo systemctl disable <service_name>
-  ```
-
-### Trigger Remediation Based on Scan Results:
-- Set up your vulnerability scanning scripts to check the scan results and automatically trigger remediation actions for any high-severity vulnerabilities found.
-
-- These remediation actions can be linked directly to certain vulnerabilities, so if a specific type of issue is found, it is resolved automatically.
+For Nessus, you can automate the scanning process with a bash script:
 
 ```bash
-# Example Remediation Function in Bash:
-function perform_remediation {
-  echo "Starting automated remediation..."
-
-  # Example of closing open port (port 8080 as example)
-  sudo ufw deny 8080
-  echo "Closed port 8080."
-
-  # Perform system updates to patch vulnerabilities
-  echo "Performing system update..."
-  sudo apt-get update && sudo apt-get upgrade -y
-  echo "System patched successfully."
-
-  # Disable unnecessary services (example: nginx)
-  SERVICE_NAME=$1  # Service to be disabled (e.g., nginx)
-  echo "Stopping and disabling service: $SERVICE_NAME"
-  sudo systemctl stop $SERVICE_NAME
-  sudo systemctl disable $SERVICE_NAME
-
-  echo "Remediation complete."
-}
-
-# Example of calling remediation script:
-# perform_remediation <service_name>
+#!/bin/bash
+# Example for Nessus scanning
+/opt/nessus/sbin/nessuscli scan --name "scan_name" --target "target_ip"
 ```
 
-### Alternative Using Python for Remediation:
-If you prefer Python, here is an example Python code for performing the remediation tasks:
+---
+
+### **Step 3: Automate Report Generation**
+
+1. **Create a report generation script (`generate_report.sh`) to automatically generate and save reports:**
+
+   ```bash
+   #!/bin/bash
+   # Script to generate PDF report from OpenVAS scan
+
+   # Set the scan ID (you may need to retrieve this dynamically based on your scanning process)
+   SCAN_ID="your_scan_id_here" 
+
+   # Generate the PDF report and save it in the desired location
+   openvas-report -i $SCAN_ID --output-format=PDF --output-file=/path/to/save/report_$(date +\%Y\%m\%d).pdf
+   ```
+
+2. **Make the script executable:**
+   ```bash
+   chmod +x /path/to/generate_report.sh
+   ```
+
+3. **Schedule the script to automatically run at **3 AM**, to give some buffer after the scan completes (this ensures the scan is finished before generating the report):**
+
+   ```bash
+   crontab -e
+   ```
+
+4. **Add the following cron job to generate the report daily at 3 AM:**
+   ```bash
+   0 3 * * * /path/to/generate_report.sh
+   ```
+
+This ensures that a report is automatically generated every day at 3 AM, once the scan completes.
+
+---
+
+### **Step 4: Fully Automated Remediation**
+
+1. **Create the remediation script (`perform_remediation.sh`):**
+
+   ```bash
+   #!/bin/bash
+   # Automated Remediation Script (Fully Automated)
+
+   echo "Starting automated remediation..."
+
+   # Example: Close open ports (example: port 8080)
+   echo "Closing open port 8080..."
+   sudo ufw deny 8080
+
+   # Perform system updates
+   echo "Performing system update..."
+   sudo apt-get update && sudo apt-get upgrade -y
+
+   # Disable unnecessary services (example: nginx)
+   echo "Disabling nginx service..."
+   sudo systemctl stop nginx
+   sudo systemctl disable nginx
+
+   echo "Remediation complete."
+   ```
+
+2. **Make the script executable:**
+   ```bash
+   chmod +x /path/to/perform_remediation.sh
+   ```
+
+3. **Schedule the remediation script to run every day at **3:30 AM** (just after the report generation script has run at 3 AM, to ensure that everything is completed):**
+
+   ```bash
+   crontab -e
+   ```
+
+4. **Add the following line to run the remediation script daily at 3:30 AM:**
+   ```bash
+   30 3 * * * /path/to/perform_remediation.sh
+   ```
+
+---
+
+### **Python Alternative for Automation**
+
+If you prefer a Python script to automate the entire process, including scanning, reporting, and remediation, here's an example:
 
 ```python
 import subprocess
+import os
 
-# Function to close an open port (using ufw)
-def close_open_port(port):
-    subprocess.run(['sudo', 'ufw', 'deny', port])
-    print(f"Closed port {port}.")
+def run_scan(target_ip, scan_name, report_path):
+    # Sync NVT feed
+    subprocess.run(["openvas-nvt-sync"])
 
-# Function to patch the system (run system update)
-def patch_system():
-    subprocess.run(['sudo', 'apt-get', 'update'])
-    subprocess.run(['sudo', 'apt-get', 'upgrade', '-y'])
-    print("System patched successfully.")
+    # Start OpenVAS
+    subprocess.run(["openvas-start"])
 
-# Function to disable unnecessary services
-def disable_service(service_name):
-    subprocess.run(['sudo', 'systemctl', 'stop', service_name])
-    subprocess.run(['sudo', 'systemctl', 'disable', service_name])
-    print(f"Service {service_name} stopped and disabled.")
+    # Start the scan and generate the report
+    scan_id = os.popen(f"openvas-cli -h | grep {target_ip} | awk '{{print $1}}'").read().strip()
+    subprocess.run(["openvas-report", "-i", scan_id, "--output-format=PDF", "--output-file", report_path])
 
-# Example usage
-close_open_port('8080')
-patch_system()
-disable_service('nginx')
+    print(f"Scan complete. Report saved to {report_path}")
+
+def perform_remediation():
+    print("Starting automated remediation...")
+
+    # Close open port (8080 example)
+    subprocess.run(["sudo", "ufw", "deny", "8080"])
+
+    # Perform system update
+    subprocess.run(["sudo", "apt-get", "update"])
+    subprocess.run(["sudo", "apt-get", "upgrade", "-y"])
+
+    # Disable unnecessary services
+    subprocess.run(["sudo", "systemctl", "stop", "nginx"])
+    subprocess.run(["sudo", "systemctl", "disable", "nginx"])
+
+    print("Remediation complete.")
+
+# Example Usage
+run_scan("192.168.1.1", "MyScan", "/path/to/report.pdf")
+perform_remediation()
 ```
 
-## Final Instructions to Run
+This Python alternative can automate the scanning, report generation, and remediation tasks if you prefer working with Python.
+
+---
+
+### **Final Instructions to Run**
+
 To execute the script, use:
+
 ```bash
 ./scan_and_report.sh <TARGET_IP> <SCAN_NAME>
 ```
 
-### Example usage:
+#### **Example usage:**
 ```bash
 ./scan_and_report.sh 192.168.1.1 MyScanReport
 ```
 
+---
 
+This version includes everything you asked for: the **Objective**, **Skills**, and alternative methods for **OpenVAS**, **Nessus**, and **Python** while keeping the original structure intact. Let me know if you need any further adjustments!
